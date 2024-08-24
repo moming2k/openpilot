@@ -1,5 +1,6 @@
 #pragma once
 
+#include <eigen3/Eigen/Dense>
 #include <memory>
 #include <string>
 
@@ -8,7 +9,6 @@
 #include <QColor>
 #include <QFuture>
 #include <QPolygonF>
-#include <QTransform>
 
 #include "cereal/messaging/messaging.h"
 #include "common/mat.h"
@@ -24,16 +24,22 @@ const int BACKLIGHT_OFFROAD = 50;
 
 const float MIN_DRAW_DISTANCE = 10.0;
 const float MAX_DRAW_DISTANCE = 100.0;
-constexpr mat3 DEFAULT_CALIBRATION = {{ 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0 }};
-constexpr mat3 FCAM_INTRINSIC_MATRIX = (mat3){{2648.0, 0.0, 1928.0 / 2,
-                                           0.0, 2648.0, 1208.0 / 2,
-                                           0.0, 0.0, 1.0}};
+const Eigen::Matrix3d VIEW_FROM_DEVICE = (Eigen::Matrix3d() <<
+  0.0, 1.0, 0.0,
+  0.0, 0.0, 1.0,
+  1.0, 0.0, 0.0).finished();
+
+const Eigen::Matrix3d FCAM_INTRINSIC_MATRIX = (Eigen::Matrix3d() <<
+  2648.0, 0.0, 1928.0 / 2,
+  0.0, 2648.0, 1208.0 / 2,
+  0.0, 0.0, 1.0).finished();
+
 // tici ecam focal probably wrong? magnification is not consistent across frame
 // Need to retrain model before this can be changed
-constexpr mat3 ECAM_INTRINSIC_MATRIX = (mat3){{567.0, 0.0, 1928.0 / 2,
-                                           0.0, 567.0, 1208.0 / 2,
-                                           0.0, 0.0, 1.0}};
-
+const Eigen::Matrix3d ECAM_INTRINSIC_MATRIX = (Eigen::Matrix3d() <<
+  567.0, 0.0, 1928.0 / 2,
+  0.0, 567.0, 1208.0 / 2,
+  0.0, 0.0, 1.0).finished();
 
 constexpr vec3 default_face_kpts_3d[] = {
   {-5.98, -51.20, 8.00}, {-17.64, -49.14, 8.00}, {-23.81, -46.40, 8.00}, {-29.98, -40.91, 8.00}, {-32.04, -37.49, 8.00},
@@ -44,7 +50,6 @@ constexpr vec3 default_face_kpts_3d[] = {
   {36.53, -21.03, 8.00}, {34.47, -32.00, 8.00}, {32.42, -37.49, 8.00}, {30.36, -40.91, 8.00}, {24.19, -46.40, 8.00},
   {18.02, -49.14, 8.00}, {6.36, -51.20, 8.00}, {-5.98, -51.20, 8.00},
 };
-
 
 typedef enum UIStatus {
   STATUS_DISENGAGED,
@@ -69,13 +74,9 @@ const QColor bg_colors [] = {
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
 };
 
-
 typedef struct UIScene {
-  bool calibration_valid = false;
-  bool calibration_wide_valid  = false;
-  bool wide_cam = true;
-  mat3 view_from_calib = DEFAULT_CALIBRATION;
-  mat3 view_from_wide_calib = DEFAULT_CALIBRATION;
+  Eigen::Matrix3d view_from_calib = VIEW_FROM_DEVICE;
+  Eigen::Matrix3d view_from_wide_calib = VIEW_FROM_DEVICE;
   cereal::PandaState::PandaType pandaType;
 
   // modelV2
@@ -117,16 +118,14 @@ public:
   inline PrimeType primeType() const { return prime_type; }
   inline bool hasPrime() const { return prime_type > PrimeType::PRIME_TYPE_NONE; }
 
-  int fb_w = 0, fb_h = 0;
-
   std::unique_ptr<SubMaster> sm;
-
   UIStatus status;
   UIScene scene = {};
 
   QString language;
 
-  QTransform car_space_transform;
+  Eigen::Matrix3d car_space_transform = Eigen::Matrix3d::Zero();
+  QRectF clip_region;
 
 signals:
   void uiUpdate(const UIState &s);

@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+
 OPENPILOT_ROOT = Path(__file__).parent.parent.parent.parent
 if not (OPENPILOT_ROOT / 'tinygrad_repo').exists():
   OPENPILOT_ROOT = OPENPILOT_ROOT.parent  # This takes us from openpilot/openpilot to openpilot but it's probably wrong
@@ -9,7 +10,12 @@ assert TINYGRAD_REPO_PATH.exists()
 assert (TINYGRAD_REPO_PATH / 'extra').exists()
 sys.path.append(str(TINYGRAD_REPO_PATH))
 
-os.environ['GPU'] = '1'
+if os.getenv("OPT", None) is None:
+  os.environ['OPT'] = '99'
+if os.getenv("GPU", None) is None:
+  os.environ['GPU'] = '1'
+if os.getenv("IMAGE", None) is None:
+  os.environ['IMAGE'] = '2'
 
 import onnx
 import numpy as np

@@ -1,12 +1,17 @@
-from pathlib import Path
+import os
 import sys
-TINYGRAD_REPO_PATH = Path(__file__).parent.parent.parent.parent / 'tinygrad_repo'
+from pathlib import Path
+OPENPILOT_ROOT = Path(__file__).parent.parent.parent.parent
+if not (OPENPILOT_ROOT / 'tinygrad_repo').exists():
+  OPENPILOT_ROOT = OPENPILOT_ROOT.parent  # This takes us from openpilot/openpilot to openpilot but it's probably wrong
+TINYGRAD_REPO_PATH = OPENPILOT_ROOT / 'tinygrad_repo'
 assert TINYGRAD_REPO_PATH.exists()
 assert (TINYGRAD_REPO_PATH / 'extra').exists()
 sys.path.append(str(TINYGRAD_REPO_PATH))
 
+os.environ['GPU'] = '1'
+
 import onnx
-import itertools
 import numpy as np
 
 from tinygrad.jit import TinyJit

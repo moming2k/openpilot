@@ -1,6 +1,9 @@
 from pathlib import Path
 import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / 'tinygrad_repo'))
+TINYGRAD_REPO_PATH = Path(__file__).parent.parent.parent.parent / 'tinygrad_repo'
+assert TINYGRAD_REPO_PATH.exists()
+assert (TINYGRAD_REPO_PATH / 'extra').exists()
+sys.path.append(str(TINYGRAD_REPO_PATH))
 
 import onnx
 import itertools

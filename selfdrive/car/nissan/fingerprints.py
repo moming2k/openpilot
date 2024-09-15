@@ -78,7 +78,7 @@ FW_VERSIONS = {
       b'5SH4BDB\x04\x18\x00\x00\x00\x00\x00_-?\x04\x91\xf2\x00\x00\x00\x80',
       b'5SK0ADB\x04\x18\x00\x00\x00\x00\x00_(5\x07\x9aQ\x00\x00\x00\x80',
     ],
-    (Ecu.abs, 0x740, None): [ b'476605SH7E',
+    (Ecu.abs, 0x740, None): [
       b'476605SD2E',
       b'476605SH1D',
       b'476605SH7E',
